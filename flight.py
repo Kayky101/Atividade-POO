@@ -3,6 +3,8 @@ from enums import SeatStatus, FlightStatus
 from person import Passenger, CrewMember
 from exceptions.booking_exceptions import SeatAlreadyBookedError, InvalidSeatNumberError
 from exceptions.flight_exceptions import NoAvailableSeatsError
+# A importação da classe Booking foi movida para dentro do método para evitar dependência circular
+# from booking import Booking
 
 class Seat:
     # ... (código da classe Seat permanece o mesmo) ...
@@ -36,6 +38,7 @@ class Seat:
 
 
 class Flight:
+    # ... (código do __init__ e propriedades permanece o mesmo até add_crew_member) ...
     """Representa um voo no sistema de reservas."""
     _SEAT_ROWS = 42
     _SEAT_LETTERS = "ABCDEF"
@@ -51,7 +54,6 @@ class Flight:
         self._crew: list[CrewMember] = []
 
     def _initialize_seats(self) -> dict[str, Seat]:
-        # ... (código do método permanece o mesmo) ...
         """Cria os 252 assentos para o voo."""
         seats = {}
         for row in range(1, self._SEAT_ROWS + 1):
@@ -92,7 +94,28 @@ class Flight:
             raise TypeError("O membro deve ser uma instância de CrewMember.")
         self._crew.append(member)
 
+    def get_available_seats(self) -> list[Seat]:
+        """Retorna uma lista de todos os assentos disponíveis."""
+        return [seat for seat in self._seats.values() if seat.status == SeatStatus.AVAILABLE]
+
+    def book_seat(self, seat_number: str, passenger: Passenger):
+        """
+        Associa um cliente a um voo e um lugar.
+        """
+        if seat_number not in self._seats:
+            raise InvalidSeatNumberError(seat_number, self.flight_id)
+
+        seat = self._seats[seat_number]
+        if seat.status == SeatStatus.BOOKED:
+            raise SeatAlreadyBookedError(seat_number, self.flight_id)
+
+        seat.book(passenger)
+        
+        # Importação local para evitar dependência circular
+        from booking import Booking
+        new_booking = Booking(passenger, self.flight_id, seat)
+        return new_booking
+
     def __repr__(self) -> str:
         return (f"Flight(ID: {self.flight_id}, From: {self.origin}, To: {self.destination}, "
                 f"Price: R${self.price:.2f})")
-
