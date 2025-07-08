@@ -5,6 +5,7 @@ from exceptions.booking_exceptions import SeatAlreadyBookedError, InvalidSeatNum
 from exceptions.flight_exceptions import NoAvailableSeatsError
 
 class Seat:
+    # ... (código da classe Seat permanece o mesmo) ...
     """Representa um assento individual em um voo."""
     def __init__(self, seat_number: str):
         self._seat_number = seat_number
@@ -33,6 +34,7 @@ class Seat:
     def __repr__(self):
         return f"Seat({self.seat_number}, Status: {self.status.name})"
 
+
 class Flight:
     """Representa um voo no sistema de reservas."""
     _SEAT_ROWS = 42
@@ -46,9 +48,10 @@ class Flight:
         self._price = price
         self._status = FlightStatus.SCHEDULED
         self._seats = self._initialize_seats()
-        self._crew: list[CrewMember] = [] # Adicionado, mas a lógica de uso virá depois
+        self._crew: list[CrewMember] = []
 
     def _initialize_seats(self) -> dict[str, Seat]:
+        # ... (código do método permanece o mesmo) ...
         """Cria os 252 assentos para o voo."""
         seats = {}
         for row in range(1, self._SEAT_ROWS + 1):
@@ -79,6 +82,17 @@ class Flight:
             raise ValueError("O preço deve ser um número não negativo.")
         self._price = float(value)
 
+    @property
+    def crew(self) -> list[CrewMember]:
+        return self._crew
+
+    def add_crew_member(self, member: CrewMember):
+        """Adiciona um membro da tripulação ao voo."""
+        if not isinstance(member, CrewMember):
+            raise TypeError("O membro deve ser uma instância de CrewMember.")
+        self._crew.append(member)
+
     def __repr__(self) -> str:
         return (f"Flight(ID: {self.flight_id}, From: {self.origin}, To: {self.destination}, "
                 f"Price: R${self.price:.2f})")
+
