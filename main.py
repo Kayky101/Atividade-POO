@@ -69,5 +69,36 @@ def main():
             print("   Nenhum assento disponível neste voo.")
         print("-" * 20)
 
+    # 4. Simular a associação de um cliente a um voo e lugar
+    print("\n\nSIMULAÇÃO DE RESERVA\n")
+    
+    # Criar passageiros usando Faker
+    passenger1 = Passenger(person_id=1, name=faker.name(), passport_number=faker.ssn())
+    print(f"Passageiro '{passenger1.name}' fazendo uma reserva...")
+    
+    flight_to_book = flights[0]
+    available_seats_for_booking = flight_to_book.get_available_seats()
+    
+    if available_seats_for_booking:
+        seat_to_book = available_seats_for_booking[0].seat_number
+        print(f"Tentando reservar o assento {seat_to_book} no voo {flight_to_book.flight_id}...")
+        
+        try:
+            # Fluxo de sucesso
+            booking1 = flight_to_book.book_seat(seat_to_book, passenger1)
+            print(f"Reserva confirmada! Detalhes: {booking1}")
+            
+            # Tentar reservar o mesmo assento novamente para demonstrar a exceção
+            print(f"\nTentando reservar o mesmo assento ({seat_to_book}) novamente...")
+            passenger2 = Passenger(person_id=2, name=faker.name(), passport_number=faker.ssn())
+            flight_to_book.book_seat(seat_to_book, passenger2)
+
+        except SeatAlreadyBookedError as e:
+            print(f"ERRO ESPERADO CAPTURADO: {e}")
+        except Exception as e:
+            print(f"Ocorreu um erro inesperado: {e}")
+    
+    print("Demonstração finalizada.")
+
 if __name__ == "__main__":
     main()
