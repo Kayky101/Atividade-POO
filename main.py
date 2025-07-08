@@ -1,6 +1,6 @@
 import random
 from datetime import datetime, timedelta
-from faker import Faker  
+from faker import Faker
 
 from flight import Flight
 from person import Passenger, CrewMember
@@ -12,10 +12,9 @@ def main():
     print("Bem-vindo ao Sistema de Reservas de Voo!")
     print("=" * 60)
 
-    # Inicializa o Faker para gerar dados em português do Brasil
     faker = Faker('pt_BR')
 
-    # 1. Criar Tripulantes (Funcionários) usando Faker
+    # 1. Criar Tripulantes (Funcionários)
     crew = [
         CrewMember(101, faker.name(), CrewRole.PILOT),
         CrewMember(102, faker.name(), CrewRole.COPILOT),
@@ -38,7 +37,6 @@ def main():
         
         flight = Flight(flight_id, route[0], route[1], departure, price)
         
-        # Associar tripulantes a um voo
         pilots = [m for m in crew if m.role == CrewRole.PILOT or m.role == CrewRole.COPILOT]
         attendants = [m for m in crew if m.role == CrewRole.FLIGHT_ATTENDANT]
         
@@ -50,6 +48,26 @@ def main():
     
     print(f"\n{len(flights)} voos criados e programados com sucesso!")
     print("-" * 60)
+
+    # 3. Mostrar os voos e 10 lugares aleatórios de cada
+    print("\nLISTA DE VOOS DISPONÍVEIS E AMOSTRA DE ASSENTOS\n")
+    for flight in flights:
+        print(f"Voo: {flight}")
+        
+        print("   Tripulação:")
+        for member in flight.crew:
+            print(f"     - {member.name} ({member.role.name.replace('_', ' ').title()})")
+            
+        available_seats = flight.get_available_seats()
+        sample_size = min(10, len(available_seats))
+        
+        if sample_size > 0:
+            random_seats = random.sample(available_seats, k=sample_size)
+            seat_numbers = [seat.seat_number for seat in random_seats]
+            print(f"   {len(available_seats)} assentos disponíveis. Amostra: {', '.join(seat_numbers)}")
+        else:
+            print("   Nenhum assento disponível neste voo.")
+        print("-" * 20)
 
 if __name__ == "__main__":
     main()
